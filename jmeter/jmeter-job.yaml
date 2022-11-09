@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: jmeter-job
+  namespace: poc-redhat-babysitting
+spec:
+  selector: {}
+  template:
+    metadata:
+      name: jmeter
+    spec:
+      volumes:
+        - name: volume
+          configMap:
+            name: jmeter-file
+        - name: csv
+          configMap:
+            name: jmeter-csv
+      containers:
+        - name: jmeter
+          image: docker.io/justb4/jmeter
+          args:
+            - '-n'
+            - '-t'
+            - '/volume/plans/plan.jmx'
+            - '-j'
+            - '/tmp/jmeter.log'
+          volumeMounts:
+            - name: volume
+              mountPath: /volume/plans
+            - name: csv
+              mountPath: /volume/samples
+          resources: {}
+          imagePullPolicy: Always
+      restartPolicy: Never
