@@ -1,0 +1,56 @@
+kind: CronJob
+apiVersion: batch/v1beta1
+metadata:
+  name: jmeter
+  namespace: poc-redhat-babysitting
+spec:
+  schedule: 13 * * * *
+  concurrencyPolicy: Allow
+  suspend: false
+  jobTemplate:
+    metadata:
+        name: jmeter
+      spec:
+        containers:
+          - name: data-collector
+            image: docker.io/openshift/origin-cli
+            workingDir: /tmp/script
+            securityContext:
+              runAsNonRoot: false
+            command:
+              - bash
+              - -c
+              - |
+                echo "Login openshift"
+                oc login --token=$OC_TOKEN --server=$OC_SERVER --insecure-skip-tls-verify=true
+                oc project poc-redhat-babysitting
+
+                echo "Obteniendo jvm_pid"
+                jvm_pid=$(oc exec $PODNAME -- $JCMD_PATH | grep infinispan | awk '{print $1}';);
+
+                echo "Recolectado informacion de Memoria y Thread"
+                timestamp=$(date +%Y%m%d-%H%M)
+                oc exec $PODNAME -- /bin/bash -c "mkdir -p $RESULT_PATH$PODNAME-$timestamp"
+                oc exec $PODNAME -- /bin/bash -c "$JCMD_PATH $jvm_pid VM.info > $RESULT_PATH$PODNAME-$timestamp/VM.info.txt"
+                oc exec $PODNAME -- /bin/bash -c "$JCMD_PATH $jvm_pid VM.native_memory baseline > $RESULT_PATH$PODNAME-$timestamp/VM.native_memory-baseline.txt"
+                oc exec $PODNAME -- /bin/bash -c "$JCMD_PATH $jvm_pid VM.native_memory detail.diff >  $RESULT_PATH$PODNAME-$timestamp/VM.native_memory-detail.diff.txt"
+                oc exec $PODNAME -- /bin/bash -c "$JCMD_PATH $jvm_pid GC.heap_info >  $RESULT_PATH$PODNAME-$timestamp/GC.heap_info.txt"
+                oc exec $PODNAME -- /bin/bash -c "$JCMD_PATH $jvm_pid VM.native_memory >  $RESULT_PATH$PODNAME-$timestamp/VM.native_memory.txt"
+                oc exec $PODNAME -- /bin/bash -c "$JCMD_PATH $jvm_pid VM.metaspace >  $RESULT_PATH$PODNAME-$timestamp/VM.metaspace.txt"
+                oc exec $PODNAME -- /bin/bash -c "$JCMD_PATH $jvm_pid Thread.print >  $RESULT_PATH$PODNAME-$timestamp/Thread.print.txt"
+
+                echo "Recolectado  GC logs"
+                oc exec $PODNAME -- /bin/bash -c "cp /tmp/gc.log $RESULT_PATH$PODNAME-$timestamp/gc.log"
+
+                echo "Comprimiendo"
+                oc exec $PODNAME -- /bin/bash -c "tar -cvf $RESULT_PATH$PODNAME-$timestamp.tar $RESULT_PATH$PODNAME-$timestamp"
+
+                echo "Eliminando carpeta"
+                oc exec $PODNAME -- /bin/bash -c "rm -fr $RESULT_PATH$PODNAME-$timestamp"
+
+            envFrom:
+              - configMapRef:
+                  name: data-collector-config 
+            resources: {}
+            imagePullPolicy: Always
+        restartPolicy: Never
