@@ -2,7 +2,7 @@ PODNAME=mimo-int-cache-5
 JCMD_PATH=/opt/infinispan/diag/bin/
 RESULT_PATH=/opt/infinispan/server/data/
 HOST_PATH=/home/blobo/Descargas/
-FILE=mimo-int-cache-5.tar
+FILE=<se pasa por parametro>
 
 ls:
 	oc exec $(PODNAME) -- ls $(RESULT_PATH)
