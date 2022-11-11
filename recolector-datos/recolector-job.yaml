@@ -14,9 +14,6 @@ spec:
       containers:
         - name: data-collector
           image: docker.io/openshift/origin-cli
-          workingDir: /tmp/script
-          securityContext:
-            runAsNonRoot: false
           command:
             - bash
             - -c
@@ -43,9 +40,9 @@ spec:
               oc exec $PODNAME -- /bin/bash -c "cp /tmp/gc.log $RESULT_PATH$PODNAME-$timestamp/gc.log"
 
               echo "Comprimiendo"
-              oc exec $PODNAME -- /bin/bash -c "tar -cvf $RESULT_PATH$PODNAME-$timestamp.tar $RESULT_PATH$PODNAME-$timestamp"
+              oc exec $PODNAME -- /bin/bash -c "tar -zcvf $RESULT_PATH$PODNAME-$timestamp.gz $RESULT_PATH$PODNAME-$timestamp"
 
-              echo "Eliminando carpeta"
+              echo "Eliminando"
               oc exec $PODNAME -- /bin/bash -c "rm -fr $RESULT_PATH$PODNAME-$timestamp"
 
           envFrom:

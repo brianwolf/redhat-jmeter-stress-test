@@ -4,7 +4,7 @@ metadata:
   name: jmeter
   namespace: poc-redhat-babysitting
 spec:
-  schedule: 13 * * * *
+  schedule: 0 5/6 * * *
   concurrencyPolicy: Allow
   suspend: false
   jobTemplate:
@@ -35,6 +35,7 @@ spec:
                 oc exec $PODNAME -- /bin/bash -c "$JCMD_PATH $jvm_pid VM.native_memory baseline > $RESULT_PATH$PODNAME-$timestamp/VM.native_memory-baseline.txt"
                 oc exec $PODNAME -- /bin/bash -c "$JCMD_PATH $jvm_pid VM.native_memory detail.diff >  $RESULT_PATH$PODNAME-$timestamp/VM.native_memory-detail.diff.txt"
                 oc exec $PODNAME -- /bin/bash -c "$JCMD_PATH $jvm_pid GC.heap_info >  $RESULT_PATH$PODNAME-$timestamp/GC.heap_info.txt"
+                oc exec $PODNAME -- /bin/bash -c "$JCMD_PATH $jvm_pid GC.heap_dump >  $RESULT_PATH$PODNAME-$timestamp/GC.GC.heap_dump.txt"
                 oc exec $PODNAME -- /bin/bash -c "$JCMD_PATH $jvm_pid VM.native_memory >  $RESULT_PATH$PODNAME-$timestamp/VM.native_memory.txt"
                 oc exec $PODNAME -- /bin/bash -c "$JCMD_PATH $jvm_pid VM.metaspace >  $RESULT_PATH$PODNAME-$timestamp/VM.metaspace.txt"
                 oc exec $PODNAME -- /bin/bash -c "$JCMD_PATH $jvm_pid Thread.print >  $RESULT_PATH$PODNAME-$timestamp/Thread.print.txt"
@@ -43,10 +44,7 @@ spec:
                 oc exec $PODNAME -- /bin/bash -c "cp /tmp/gc.log $RESULT_PATH$PODNAME-$timestamp/gc.log"
 
                 echo "Comprimiendo"
-                oc exec $PODNAME -- /bin/bash -c "tar -cvf $RESULT_PATH$PODNAME-$timestamp.tar $RESULT_PATH$PODNAME-$timestamp"
-
-                echo "Eliminando carpeta"
-                oc exec $PODNAME -- /bin/bash -c "rm -fr $RESULT_PATH$PODNAME-$timestamp"
+                oc exec $PODNAME -- /bin/bash -c "gzip $RESULT_PATH$PODNAME-$timestamp"
 
             envFrom:
               - configMapRef:
