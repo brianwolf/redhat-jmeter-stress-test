@@ -14,9 +14,6 @@ spec:
         containers:
           - name: data-collector
             image: docker.io/openshift/origin-cli
-            workingDir: /tmp/script
-            securityContext:
-              runAsNonRoot: false
             command:
               - bash
               - -c
