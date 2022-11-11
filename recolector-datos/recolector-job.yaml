@@ -63,7 +63,7 @@ metadata:
 data:
   PODNAME: mimo-int-cache-5
   JCMD_PATH: /opt/infinispan/diag/bin/jcmd
-  RESULT_PATH: /opt/infinispan/diag/bin/
-  OC_TOKEN: sha256~1q5FL7YEcg58jRtGWxvdqDsPsy9iTbZ-6XuihT2NQDI
+  RESULT_PATH: /opt/infinispan/server/data/
+  OC_TOKEN: sha256~2vVFDBfivVTqQ3r5k23-LS4dh20lEfqgX9fQkplo_EQ
   OC_SERVER: https://api.ocpnp.cuyorh.tcloud.ar:6443
 

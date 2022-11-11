@@ -1,5 +1,6 @@
 PODNAME=mimo-int-cache-5
-RESULT_PATH=/opt/infinispan/diag/bin/
+JCMD_PATH=/opt/infinispan/diag/bin/
+RESULT_PATH=/opt/infinispan/server/data/
 HOST_PATH=/home/blobo/Descargas/
 FILE=mimo-int-cache-5.tar
 
@@ -16,6 +17,6 @@ rm:
 
 
 jcmd:
-	oc exec $(PODNAME) -- mkdir -p $(RESULT_PATH)
-	oc cp jdk_11_16/jcmd  $(PODNAME):$(RESULT_PATH)
-	oc exec $(PODNAME) -- $(RESULT_PATH)jcmd --help
+	oc exec $(PODNAME) -- mkdir -p $(JCMD_PATH)
+	oc cp jdk_11_16/jcmd  $(PODNAME):$(JCMD_PATH)
+	oc exec $(PODNAME) -- $(JCMD_PATH)jcmd --help
